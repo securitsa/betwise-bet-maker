@@ -1,7 +1,6 @@
 import logging
-from typing import Unpack
 
-from sqlalchemy import desc, func, select
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from adapters.connection_engines.sql_alchemy.models import ParlaysORM
@@ -11,7 +10,6 @@ from core.exceptions.parlay_exceptions import ParlayNotFoundException
 from core.loggers import REPOSITORY_LOGGER
 from domain.entities.parlay import Parlay
 from ports.repositories.parlay_repository import ParlayRepository
-from usecases.enum_models import Ordering, ParlayFilters, ParlaySorting
 
 logger = logging.getLogger(REPOSITORY_LOGGER)
 
@@ -59,39 +57,11 @@ class SQLAlchemyParlayRepository(ParlayRepository):
             await self.db.rollback()
             raise DatabaseException
 
-    async def list(
-        self,
-        page: int = 1,
-        limit: int = 50,
-        sort_by: ParlaySorting = ParlaySorting.BY_CREATION_DATE,
-        order_by: Ordering = Ordering.ASC,
-        **filters: Unpack[ParlayFilters],
-    ) -> list[Parlay]:
-        offset = (page - 1) * limit
-        filter_expressions = self.__get_filter_expression(ParlaysORM, filters)
-        order_expression = self.__get_order_expression(order_by, sort_by)
+    async def find_by_event_token(self, token: str) -> list[Parlay]:
         try:
-            query = select(ParlaysORM).where(*filter_expressions).offset(offset).limit(limit).order_by(order_expression)
+            query = select(ParlaysORM).where(ParlaysORM.event_token == token)
             result = await self.db.execute(query)
             return [self.mapper.to_parlay_entity(parlay) for parlay in result.scalars().all()]
         except SQLAlchemyError as e:
-            logger.error(e)
+            logger.exception(e)
             raise DatabaseException
-
-    async def count(self, **filters: Unpack[ParlayFilters]) -> int:
-        filter_expressions = self.__get_filter_expression(ParlaysORM, filters)
-        try:
-            query = select(func.count("*")).select_from(ParlaysORM).where(*filter_expressions)
-            result = await self.db.execute(query)
-            return result.scalars().first()
-        except SQLAlchemyError as e:
-            logger.error(e)
-            raise DatabaseException
-
-    @staticmethod
-    def __get_filter_expression(model, filters: Unpack[ParlayFilters]):
-        return [getattr(model, field) == value for field, value in filters.items() if value is not None]
-
-    @staticmethod
-    def __get_order_expression(order_by: Ordering, sort_by: ParlaySorting):
-        return desc(getattr(ParlaysORM, sort_by)) if order_by == Ordering.DESC else getattr(ParlaysORM, sort_by)

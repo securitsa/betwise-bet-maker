@@ -19,3 +19,9 @@ class Event:
     description: str
     created_at: datetime
     status_updated_at: datetime | None = field(default=None, compare=False)
+
+
+@dataclass
+class EventStatusInput:
+    status: EventStatus
+    token: str

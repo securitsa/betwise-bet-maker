@@ -20,3 +20,29 @@ class Parlay:
     token: UUID | None = None
     created_at: datetime | None = field(default=None, compare=False)
     status_updated_at: datetime | None = field(default=None, compare=False)
+
+
+@dataclass
+class WentInParlay:
+    user_token: str
+    event_token: str
+    winnings: float
+    status: ParlayStatus
+    token: UUID
+    created_at: datetime
+
+
+@dataclass
+class LostParlay:
+    user_token: str
+    event_token: str
+    loss: float
+    status: ParlayStatus
+    token: UUID
+    created_at: datetime
+
+
+@dataclass
+class ParlaysHistory:
+    type: ParlayStatus
+    item: Parlay | WentInParlay | LostParlay

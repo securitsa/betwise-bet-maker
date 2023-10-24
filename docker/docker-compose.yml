@@ -53,6 +53,24 @@ services:
     depends_on:
       - bet-maker-db-test
       - bet-maker-db-local
+  bet-maker-consumer:
+    container_name: btw-bet-maker-consumer
+    platform: linux/x86_64
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.dev
+    restart: always
+    command: [ "python3", "message_consumers/event_statuses/consumer.py" ]
+    volumes:
+      - ../src:/src
+    environment:
+      - API_ENVIRONMENT=local
+    networks:
+      - btw-dev-network
+    tty: true
+    depends_on:
+      - bet-maker-db-test
+      - bet-maker-db-local
   redis:
     container_name: btw-redis
     image: redis:7.0.11

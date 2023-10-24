@@ -1,0 +1,2 @@
+class GracefulExitException(SystemExit):
+    pass
