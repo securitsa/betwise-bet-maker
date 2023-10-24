@@ -28,6 +28,13 @@ class RedisRequestCachingRepository(EventCachingRepository):
         except RedisError as e:
             logger.exception(e)
 
+    async def get_all_cache(self) -> list[Event] | None:
+        try:
+            if response := await self.redis.mget(await self.redis.keys("*")):
+                return [self.mapper.to_event_entity(deserialize_json(item)) for item in response]
+        except RedisError as e:
+            logger.exception(e)
+
     async def set_cache(self, event_token: str, response: dict, expire: timedelta = timedelta(minutes=3)) -> bool:
         try:
             return await self.redis.setex(self.prefix + ":" + event_token, expire, serialize_json(response))
