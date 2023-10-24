@@ -28,14 +28,14 @@ class BaseAppSettings(BaseSettings):
     db_username: str = Field("betwise", validation_alias="DATABASE_USERNAME")
     db_password: SecretStr = Field("betwise", validation_alias="DATABASE_PASSWORD")
     db_database: str = Field("betwise", validation_alias="DATABASE_NAME")
-    valid_jwt_secret: str = Field("jwt_secret_key", validation_alias="JWT_SECRET_KEY")
     sqs_test_config: dict | None = None
     redis_host: str = "btw-redis"
     redis_port: int = 6379
     redis_password: SecretStr = "betwise"
     redis_database: str = "2"
-    friend_reward_queue: str = "events-queue-dev"
-    friend_reward_dead_letter_queue: str = "events-queue-dead-letter-dev"
+    events_queue: str = "events-queue-dev"
+    events_dead_letter_queue: str = "events-queue-dead-letter-dev"
+    line_provider_api_url: str = ""
 
     @field_validator("db_password")
     @classmethod
@@ -81,6 +81,7 @@ class TestSettings(BaseAppSettings):
 
 class LocalSettings(BaseAppSettings):
     title: str = "Local environment - Betwise Bet Maker"
+    line_provider_api_url: str = "http://line-provider:8000"
     sqs_test_config: dict = {
         "endpoint_url": "http://sqs:9324",
         "region_name": "elasticmq",
@@ -92,9 +93,10 @@ class LocalSettings(BaseAppSettings):
 
 class DevelopmentSettings(BaseAppSettings):
     title: str = "Development environment - Betwise Bet Maker"
+    line_provider_api_url: str = "http://line-provider:8000"
 
 
 class ProductionSettings(BaseAppSettings):
     debug: bool = False
-    friend_reward_queue: str = "events-queue"
-    friend_reward_dead_letter_queue: str = "events-queue-dead-letter"
+    events_queue: str = "events-queue"
+    events_dead_letter_queue: str = "events-queue-dead-letter"

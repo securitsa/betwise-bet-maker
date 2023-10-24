@@ -8,3 +8,7 @@ class DatabaseException(ExternalException):
 
 class MessageProducerException(ExternalException):
     pass
+
+
+class LineProviderException(ExternalException):
+    pass

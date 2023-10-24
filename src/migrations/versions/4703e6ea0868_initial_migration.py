@@ -22,7 +22,7 @@ def upgrade() -> None:
         sa.Column("token", sa.Uuid(), server_default=sa.text("gen_random_uuid()"), nullable=False),
         sa.Column("user_token", sa.String(), nullable=False),
         sa.Column("event_token", sa.String(), nullable=False),
-        sa.Column("amount", sa.String(), nullable=False),
+        sa.Column("amount", sa.Integer(), nullable=False),
         sa.Column("coefficient", sa.Float(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()"), nullable=False),
         sa.Column("status", sa.Enum("PENDING", "WENT_IN", "LOST", name="parlaystatus"), nullable=False),
