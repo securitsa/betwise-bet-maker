@@ -73,10 +73,10 @@ class BaseAppSettings(BaseSettings):
 class TestSettings(BaseAppSettings):
     title: str = "Test environment - Betwise Bet Maker service"
     db_host: str = Field("btw-postgres-bet-maker-test", validation_alias="DATABASE_HOST")
-    db_username: str = Field("betwise", validation_alias="DATABASE_USERNAME")
-    db_password: SecretStr = Field("betwise", validation_alias="DATABASE_PASSWORD")
-    db_database: str = Field("betwise", validation_alias="DATABASE_NAME")
-    sqs_test_config: dict = SQSTestConfig().dict()
+    db_username: str = Field("betwise-test", validation_alias="DATABASE_USERNAME")
+    db_password: SecretStr = Field("betwise-test", validation_alias="DATABASE_PASSWORD")
+    db_database: str = Field("betwise-test", validation_alias="DATABASE_NAME")
+    sqs_test_config: dict = SQSTestConfig().model_dump()
 
 
 class LocalSettings(BaseAppSettings):
