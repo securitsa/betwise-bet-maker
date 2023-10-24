@@ -53,6 +53,25 @@ services:
     depends_on:
       - db-test
       - db-local
+  redis:
+    container_name: btw-redis
+    image: redis:7.0.11
+    restart: always
+    ports:
+      - "6381:6379"
+    command: redis-server --requirepass betwise
+    networks:
+      - btw-dev-network
+  sqs:
+    image: softwaremill/elasticmq-native
+    container_name: btw-sqs
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./sqs/sqs_config.conf:/opt/elasticmq.conf
+    networks:
+      - btw-dev-network
 networks:
   btw-dev-network:
     external: true

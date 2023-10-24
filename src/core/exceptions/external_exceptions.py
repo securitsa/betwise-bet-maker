@@ -4,3 +4,7 @@ class ExternalException(Exception):
 
 class DatabaseException(ExternalException):
     pass
+
+
+class MessageProducerException(ExternalException):
+    pass

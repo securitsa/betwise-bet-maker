@@ -13,6 +13,11 @@ class EnvironmentTypes(Enum):
     prod: str = "prod"
 
 
+class SQSTestConfig(BaseSettings):
+    aws_secret_access_key: str = ""
+    aws_access_key_id: str = ""
+
+
 class BaseAppSettings(BaseSettings):
     environment: EnvironmentTypes = Field(EnvironmentTypes.prod, validation_alias="API_ENVIRONMENT")
     debug: bool = True
@@ -24,6 +29,13 @@ class BaseAppSettings(BaseSettings):
     db_password: SecretStr = Field("betwise", validation_alias="DATABASE_PASSWORD")
     db_database: str = Field("betwise", validation_alias="DATABASE_NAME")
     valid_jwt_secret: str = Field("jwt_secret_key", validation_alias="JWT_SECRET_KEY")
+    sqs_test_config: dict | None = None
+    redis_host: str = "btw-redis"
+    redis_port: int = 6379
+    redis_password: SecretStr = "betwise"
+    redis_database: str = "2"
+    friend_reward_queue: str = "events-queue-dev"
+    friend_reward_dead_letter_queue: str = "events-queue-dead-letter-dev"
 
     @field_validator("db_password")
     @classmethod
@@ -48,6 +60,15 @@ class BaseAppSettings(BaseSettings):
             "password": self.db_password.get_secret_value(),
         }
 
+    @property
+    def redis_creds(self):
+        return {
+            "host": self.redis_host,
+            "database": self.redis_database,
+            "password": self.redis_password.get_secret_value(),
+            "port": self.redis_port,
+        }
+
 
 class TestSettings(BaseAppSettings):
     title: str = "Test environment - Betwise Bet Maker service"
@@ -55,10 +76,18 @@ class TestSettings(BaseAppSettings):
     db_username: str = Field("betwise", validation_alias="DATABASE_USERNAME")
     db_password: SecretStr = Field("betwise", validation_alias="DATABASE_PASSWORD")
     db_database: str = Field("betwise", validation_alias="DATABASE_NAME")
+    sqs_test_config: dict = SQSTestConfig().dict()
 
 
 class LocalSettings(BaseAppSettings):
     title: str = "Local environment - Betwise Bet Maker"
+    sqs_test_config: dict = {
+        "endpoint_url": "http://sqs:9324",
+        "region_name": "elasticmq",
+        "aws_secret_access_key": "x",
+        "aws_access_key_id": "x",
+        "use_ssl": False,
+    }
 
 
 class DevelopmentSettings(BaseAppSettings):
@@ -67,3 +96,5 @@ class DevelopmentSettings(BaseAppSettings):
 
 class ProductionSettings(BaseAppSettings):
     debug: bool = False
+    friend_reward_queue: str = "events-queue"
+    friend_reward_dead_letter_queue: str = "events-queue-dead-letter"
