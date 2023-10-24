@@ -16,3 +16,4 @@ class ParlaySorting(StrEnum):
 
 class ParlayFilters(TypedDict):
     status: ParlayStatus
+    user_token: str
