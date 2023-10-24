@@ -1,0 +1,30 @@
+FROM python:3.11.5-slim
+
+# Set work directory
+WORKDIR /src
+
+# set env variables
+# If this is set to a non-empty string, Python won’t try to write .pyc files on the import of source modules
+ENV PYTHONDONTWRITEBYTECODE 1
+
+# Force the stdout and stderr streams to be unbuffered
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && apt-get -y install gcc \
+    && apt-get install python3-dev build-essential -y\
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# install dependencies
+COPY requirements.txt .
+COPY requirements-test.txt .
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-test.txt
+
+# copy project
+COPY src .
+
+ENV PYTHONPATH /src
+
+CMD ["bash", "-c", "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --reload"]
