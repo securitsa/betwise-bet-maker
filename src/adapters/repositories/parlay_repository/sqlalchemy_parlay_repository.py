@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from adapters.connection_engines.sql_alchemy.models import ParlaysORM
@@ -9,6 +9,7 @@ from core.exceptions.external_exceptions import DatabaseException
 from core.exceptions.parlay_exceptions import ParlayNotFoundException
 from core.loggers import REPOSITORY_LOGGER
 from domain.entities.parlay import Parlay
+from domain.entities.parlay_statistics import ParlayStatistics
 from ports.repositories.parlay_repository import ParlayRepository
 
 logger = logging.getLogger(REPOSITORY_LOGGER)
@@ -65,3 +66,26 @@ class SQLAlchemyParlayRepository(ParlayRepository):
         except SQLAlchemyError as e:
             logger.exception(e)
             raise DatabaseException
+
+    async def get_total_parlays_statistics(self) -> ParlayStatistics:
+        statistics = await self.db.execute(text(self.__get_parlays_statistics_query()))
+        return ParlayStatistics(**statistics.mappings().first() or {})
+
+    async def get_user_parlays_statistics(self, user_token) -> ParlayStatistics:
+        query = text(self.__get_parlays_statistics_query() + " WHERE user_token = :user_token")
+        statistics = await self.db.execute(query, {"user_token": user_token})
+        return ParlayStatistics(**statistics.mappings().first() or {})
+
+    @staticmethod
+    def __get_parlays_statistics_query():
+        return """
+            SELECT
+                COUNT(*) AS parlays_count,
+                SUM(CASE WHEN status = 'WENT_IN' THEN 1 ELSE 0 END) AS went_in_parlays_count,
+                SUM(CASE WHEN status = 'LOST' THEN 1 ELSE 0 END) AS lost_parlays_count,
+                SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS number_of_processors,
+                (SUM(CASE WHEN status = 'WENT_IN' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS winning_percentage,
+                SUM(CASE WHEN status = 'WENT_IN' THEN ROUND(CAST(amount * coefficient * 0.01 AS numeric), 2) ELSE 0 END) AS overall_win,
+                SUM(CASE WHEN status = 'LOST' THEN ROUND(CAST(amount * 0.01 AS numeric), 2) ELSE 0 END) AS overall_loss
+            FROM parlays
+            """
