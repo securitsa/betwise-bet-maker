@@ -34,7 +34,8 @@ class SaveParlayUseCase:
         return event
 
     async def __retrieve_event_from_api(self, event_token: str) -> Event:
-        events = await self.line_provider_api.get_active_events()
+        if not (events := await self.line_provider_api.get_active_events()):
+            raise EventNotFoundException(event_token)
         for event in events:
             await self.event_caching_repository.set_cache(event.token, asdict(event))
             if event.token == event_token:

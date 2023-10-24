@@ -49,15 +49,6 @@ class SQLAlchemyParlayRepository(ParlayRepository):
             logger.exception(e)
             raise DatabaseException
 
-    async def exists(self, token: str) -> bool:
-        try:
-            result = await self.db.execute(select(1).where(ParlaysORM.token == token))
-            return result.scalars().first() is not None
-        except SQLAlchemyError as e:
-            logger.exception(e)
-            await self.db.rollback()
-            raise DatabaseException
-
     async def find_by_event_token(self, token: str) -> list[Parlay]:
         try:
             query = select(ParlaysORM).where(ParlaysORM.event_token == token)
