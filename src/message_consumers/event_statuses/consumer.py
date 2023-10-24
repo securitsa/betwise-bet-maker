@@ -11,7 +11,7 @@ from message_consumers.event_statuses.schema import EventStatusItem
 from message_consumers.sqs_consumer.base_consumer import BaseConsumer
 
 
-class FriendRewardConsumer(BaseConsumer):
+class EventConsumer(BaseConsumer):
     queue_name = settings.events_queue
     dead_letter_queue_name = settings.events_dead_letter_queue
     message_schema = EventStatusItem
@@ -27,5 +27,5 @@ if __name__ == "__main__":
         logging.getLogger(log).setLevel(logging.ERROR)
     logger = logging.getLogger(CONSUMER_LOGGER)
     message_broker = SQSMessageBroker(session, settings, logger)
-    consumer = FriendRewardConsumer(message_broker)
+    consumer = EventConsumer(message_broker)
     asyncio.run(consumer.start())
