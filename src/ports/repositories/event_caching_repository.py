@@ -10,6 +10,10 @@ class EventCachingRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_all_cache(self) -> list[Event] | None:
+        pass
+
+    @abstractmethod
     async def set_cache(self, event_token: str, response: dict, expire: timedelta = timedelta(minutes=3)) -> bool:
         pass
 
