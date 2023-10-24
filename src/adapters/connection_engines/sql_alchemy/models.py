@@ -18,7 +18,7 @@ class ParlaysORM(Base):
     token: Mapped[UUID] = mapped_column(primary_key=True, server_default=sa.text("gen_random_uuid()"))
     user_token: Mapped[str]
     event_token: Mapped[str]
-    amount: Mapped[str]
+    amount: Mapped[int]
     coefficient: Mapped[float]
     created_at: Mapped[datetime] = mapped_column(server_default=sa.func.now())
     status: Mapped[ParlayStatus]

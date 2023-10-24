@@ -2,7 +2,7 @@
 version: '3.8'
 
 services:
-  db-test:
+  bet-maker-db-test:
     image: postgres:14.5
     container_name: btw-postgres-bet-maker-test
     ports:
@@ -14,7 +14,7 @@ services:
     tty: true
     networks:
       - btw-dev-network
-  db-local:
+  bet-maker-db-local:
     image: postgres:14.5
     container_name: btw-postgres-bet-maker
     ports:
@@ -24,7 +24,7 @@ services:
       POSTGRES_PASSWORD: betwise
       POSTGRES_DB: betwise
     volumes:
-      - pgdata_bet_maker:/var/lib/postgresql/data
+      - pgdata_bet_maker:/var/lib/postgresql/bet-maker-data
     tty: true
     networks:
       - btw-dev-network
@@ -51,8 +51,8 @@ services:
       - btw-dev-network
     tty: true
     depends_on:
-      - db-test
-      - db-local
+      - bet-maker-db-test
+      - bet-maker-db-local
   redis:
     container_name: btw-redis
     image: redis:7.0.11

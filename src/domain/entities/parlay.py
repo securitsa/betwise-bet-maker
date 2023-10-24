@@ -15,8 +15,8 @@ class Parlay:
     user_token: str
     event_token: str
     amount: int
-    coefficient: float
-    status: ParlayStatus
+    status: ParlayStatus | None = None
+    coefficient: float | None = None
     token: UUID | None = None
     created_at: datetime | None = field(default=None, compare=False)
     status_updated_at: datetime | None = field(default=None, compare=False)
