@@ -19,6 +19,10 @@ class ParlayRepository(ABC):
         pass
 
     @abstractmethod
+    async def find_by_event_token(self, token: str) -> list[Parlay]:
+        pass
+
+    @abstractmethod
     async def list(
         self,
         page: int = 1,

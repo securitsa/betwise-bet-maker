@@ -59,6 +59,15 @@ class SQLAlchemyParlayRepository(ParlayRepository):
             await self.db.rollback()
             raise DatabaseException
 
+    async def find_by_event_token(self, token: str) -> list[Parlay]:
+        try:
+            query = select(ParlaysORM).where(ParlaysORM.event_token == token)
+            result = await self.db.execute(query)
+            return [self.mapper.to_parlay_entity(parlay) for parlay in result.scalars().all()]
+        except SQLAlchemyError as e:
+            logger.exception(e)
+            raise DatabaseException
+
     async def list(
         self,
         page: int = 1,

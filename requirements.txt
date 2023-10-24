@@ -9,3 +9,4 @@ python-jose[cryptography]==3.3.0
 sqlalchemy==2.0.16
 uvicorn==0.22.0
 redis==4.5.5
+aiobotocore==2.5.0
